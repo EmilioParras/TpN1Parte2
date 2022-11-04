@@ -1,49 +1,61 @@
 <?php
 require_once './app/models/zapatillas.model.php';
 require_once './app/views/zapatillas.view.php';
-require_once './app/helpers/auth.helper.php';
-require_once './app/models/CategoryModel.php';
 
-    class ZapatillasController  {
+    class ZapatillasApiController  {
         
         private $model;
-        private $shoesview;
-        private $categoryModel;
-        private $email;
+        private $view;
+        
     
-        public function __construct() {
+        public function __construct () {
             $this->model = new ZapatillasModel();
-            $this->categoryModel = new CategoryModel();
-            $this->shoesview = new ZapatillasView();
-            session_start(); 
-            $this->setEmail();
+            $this->view = new ApiView();
+            
+            // lee el body del request
+            $this->data = file_get_contents("php://input");
         }
-
-        public function setEmail() {
-            if (isset ($_SESSION['EMAIL_USER'])){
-                $this->email = $_SESSION['EMAIL_USER'];
-            } 
+    
+        private function getData () {
+            return json_decode($this->data);
         }
         
-        public function showZapatillas() {
-            $allCategorias = $this->categoryModel->getAllCategorias();
-            $todasZapatillas = $this->model->getAllZapatillas();
-            $this->shoesview->showZapatillas($todasZapatillas, $allCategorias, $this->email);
+        public function getZapatillas () {
+            $zapatillas = $this->model->getAll();
+            $this->view->response($zapatillas);
+        }
+        
+        public function getZapatilla ($params = null) {
+            $id = $params[':ID'];
+            $zapatilla = $this->model->getZapatillaById($id);
+
+            if ($zapatilla)
+            $this->view->response($zapatilla);
+                 else 
+            $this->view->response("La zapatilla con el id=$id no existe", 404);
         }
 
-        public function showUrbanShoes() {
-            $urbanShoes = $this->model->getUrbanShoes();
-            $this->shoesview->showUrbanShoes($urbanShoes, $this->email);
+        public function deleteZapatilla ($params = null) {
+            $id = $params[':ID'];
+            
+            $zapatilla = $this->model->getZapatillaById($id);
+                if ($zapatilla) {
+                    $this->model->delete($id);
+                    $this->view->response($zapatilla);
+                } else {
+                    $this->view->response("La zapatilla con el id=$id no existe", 404);
+                }
         }
 
-        public function showDeportiveShoes() {
-            $deportiveShoes = $this->model->getDeportiveShoes();
-            $this->shoesview->showDeportiveShoes($deportiveShoes, $this->email);
-        }
+        public function insertZapatilla ($params = null) {
+            $zapatilla = $this->getData();
 
-        public function showShoeById($id) {
-            $oneshoe = $this->model->getShoe($id);
-            $this->shoesview->showOneShoe($oneshoe, $this->email);
+            if (empty($zapatilla->nombre) || empty($zapatilla->marca) || empty($zapatilla->precio) || empty($zapatilla->talle)) {
+                $this->view->response("Ingrese los datos faltantes", 400);
+            } else {
+                $id = $this->model->insertZapatilla($zapatilla->nombre, $zapatilla->marca, $zapatilla->precio, $zapatilla->talle);
+                $zapatilla = $this->model->getZapatillaById($id);
+                $this->view->response($zapatilla, 201);
+            } 
         }
-
 }
