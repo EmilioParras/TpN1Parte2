@@ -20,10 +20,48 @@ require_once './app/views/zapatillas.view.php';
             return json_decode($this->data);
         }
         
+
+
+
         public function getZapatillas () {
-            $zapatillas = $this->model->getAll();
-            $this->view->response($zapatillas);
+        $limit = null;
+        $sortBy = '';
+        $orderBy = '';
+            if (array_key_exists('limit', $_GET)) {
+                $limit = $_GET['limit'];
+                    if (array_key_exists('sort', $_GET)) {
+                        $sortBy = $_GET['sort'];
+                        if (array_key_exists('order', $_GET)) {
+                            $orderBy = $_GET['order'];
+                            }
+                                $zapatillasFilt = $this->model->getZapatillasByOrder($sortBy, $orderBy, $limit);
+                                $this->view->response($zapatillasFilt);
+                        }
+                }else {
+                    $zapatillas = $this->model->getAll();
+                    $this->view->response($zapatillas);
+                } 
         }
+
+
+
+
+
+        //  public function getZapatillas () {
+        //      $sortBy = '';
+        //      $orderBy = '';
+        //          if (array_key_exists('sort', $_GET)) {
+        //              $sortBy = $_GET['sort'];
+        //                  if (array_key_exists('order', $_GET)) {
+        //                      $orderBy = $_GET['order'];
+        //                      }
+        //                          $zapatillasFilt = $this->model->getZapatillasByOrder($sortBy, $orderBy);
+        //                          $this->view->response($zapatillasFilt);
+        //              } else {
+        //                  $zapatillas = $this->model->getAll();
+        //                  $this->view->response($zapatillas);
+        //              } 
+        //  }
         
         public function getZapatilla ($params = null) {
             $id = $params[':ID'];
@@ -50,10 +88,10 @@ require_once './app/views/zapatillas.view.php';
         public function insertZapatilla ($params = null) {
             $zapatilla = $this->getData();
 
-            if (empty($zapatilla->nombre) || empty($zapatilla->marca) || empty($zapatilla->precio) || empty($zapatilla->talle)) {
+            if (empty($zapatilla->nombre) || empty($zapatilla->marca) || empty($zapatilla->precio) || empty($zapatilla->talle) || empty($zapatilla->id_categoria_fk)) {
                 $this->view->response("Ingrese los datos faltantes", 400);
             } else {
-                $id = $this->model->insertZapatilla($zapatilla->nombre, $zapatilla->marca, $zapatilla->precio, $zapatilla->talle);
+                $id = $this->model->insertZapatilla($zapatilla->nombre, $zapatilla->marca, $zapatilla->precio, $zapatilla->talle, $zapatilla->id_categoria_fk);
                 $zapatilla = $this->model->getZapatillaById($id);
                 $this->view->response($zapatilla, 201);
             } 
