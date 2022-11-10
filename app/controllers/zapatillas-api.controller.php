@@ -20,49 +20,33 @@ require_once './app/views/zapatillas.view.php';
             return json_decode($this->data);
         }
         
-
-
-
         public function getZapatillas () {
-        $limit = null;
+        $categoria = '';
         $sortBy = '';
         $orderBy = '';
-            if (array_key_exists('limit', $_GET)) {
-                $limit = $_GET['limit'];
-                    if (array_key_exists('sort', $_GET)) {
-                        $sortBy = $_GET['sort'];
+           
+                if (array_key_exists('sort', $_GET)) {
+                    $sortBy = $_GET['sort'];
                         if (array_key_exists('order', $_GET)) {
                             $orderBy = $_GET['order'];
-                            }
-                                $zapatillasFilt = $this->model->getZapatillasByOrder($sortBy, $orderBy, $limit);
-                                $this->view->response($zapatillasFilt);
-                        }
-                }else {
+                                
+                        $zapatillasFilt = $this->model->getZapatillasByOrder($sortBy, $orderBy);
+                        $this->view->response($zapatillasFilt);
+                    }
+                }   
+                
+                if (array_key_exists('categoria', $_GET)) {
+                    $categoria = $_GET['categoria']; 
+
+                    $zapatillasByCategoria = $this->model->getZapatatillasByCategoria($categoria);
+                    $this->view->response($zapatillasByCategoria);
+                }
+                else {
                     $zapatillas = $this->model->getAll();
                     $this->view->response($zapatillas);
-                } 
-        }
+                }
+            }
 
-
-
-
-
-        //  public function getZapatillas () {
-        //      $sortBy = '';
-        //      $orderBy = '';
-        //          if (array_key_exists('sort', $_GET)) {
-        //              $sortBy = $_GET['sort'];
-        //                  if (array_key_exists('order', $_GET)) {
-        //                      $orderBy = $_GET['order'];
-        //                      }
-        //                          $zapatillasFilt = $this->model->getZapatillasByOrder($sortBy, $orderBy);
-        //                          $this->view->response($zapatillasFilt);
-        //              } else {
-        //                  $zapatillas = $this->model->getAll();
-        //                  $this->view->response($zapatillas);
-        //              } 
-        //  }
-        
         public function getZapatilla ($params = null) {
             $id = $params[':ID'];
             $zapatilla = $this->model->getZapatillaById($id);
