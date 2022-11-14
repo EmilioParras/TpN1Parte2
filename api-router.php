@@ -1,6 +1,6 @@
 <?php
     require_once './libs/Router.php';
-    require_once './app/controllers/zapatillas-api.controller.php';
+    require_once './app/controllers/zapatillasApi.controller.php';
 
     $router = new Router();
 

@@ -25,10 +25,20 @@
                 return $zapatilla;
             }
 
-             public function getZapatillasByOrder($sortBy, $orderBy) {
+            public function getZapatillasPagination($limit) {
+                $query = $this->db->prepare("SELECT zapatillas.id, zapatillas.nombre, zapatillas.marca, zapatillas.precio, zapatillas.talle, zapatillas.id_categoria_fk
+                FROM zapatillas JOIN categoria
+                ON zapatillas.id_categoria_fk = categoria.id LIMIT $limit");
+                $query->execute();
+                $getZapatillasPagination = $query->fetchAll(PDO::FETCH_OBJ);
+                
+                return $getZapatillasPagination;
+            }
+
+            public function getZapatillasByOrder($sortBy, $orderBy, $order_query) {
                 $query = $this->db->prepare("SELECT zapatillas.id, zapatillas.nombre, zapatillas.marca, zapatillas.precio, zapatillas.talle, zapatillas.id_categoria_fk 
                 FROM zapatillas JOIN categoria
-                ON zapatillas.id_categoria_fk = categoria.id ORDER BY $sortBy $orderBy ");
+                ON zapatillas.id_categoria_fk = categoria.id $order_query $orderBy");
                 $query->execute();
                 $getZapatillasByOrder = $query->fetchAll(PDO::FETCH_OBJ);
         
